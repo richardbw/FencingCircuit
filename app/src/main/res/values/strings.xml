@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Fencing Circuit</string>
+
+    <string name="title_activity_stopwatch">Excercise Stopwatch</string>
+</resources>
