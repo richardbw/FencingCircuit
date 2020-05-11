@@ -169,18 +169,21 @@ class StopwatchService : Service() {
     }
 
 
+    fun elapsedTimeStr(): String   // idea stolen from https://coderwall.com/p/wkdefg/converting-milliseconds-to-hh-mm-ss-mmm
+    {
+        var elapsedTime =   elapsedTime()
+        var milliseconds =  (elapsedTime%1000)/10
+        var seconds =       (elapsedTime/1000)%60
+        var minutes =       (elapsedTime/(1000*60))%60
+        var hours =         (elapsedTime/(1000*60*60))%24
+
+        return "%02d:%02d:%02d.%02d".format(hours, minutes, seconds, milliseconds)//
+    }
 
     fun broadcastElapsedTimeStr()
     {
         val intent = Intent(INTENT_NAME_UPDATE_TIMESTR)
-
-        val elapsedTime =   elapsedTime()
-        val milliseconds =  (elapsedTime%1000)/10
-        val seconds =       (elapsedTime/1000)%60
-        val minutes =       (elapsedTime/(1000*60))%60
-        val hours =         (elapsedTime/(1000*60*60))%24
-
-        intent.putExtra(INTENT_NAME_UPDATE_TIMESTR, "%02d:%02d:%02d.%02d".format(hours, minutes, seconds, milliseconds))
+        intent.putExtra(INTENT_NAME_UPDATE_TIMESTR, elapsedTimeStr())
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 

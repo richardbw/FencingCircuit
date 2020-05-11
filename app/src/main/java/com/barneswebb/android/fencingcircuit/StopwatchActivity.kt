@@ -16,8 +16,8 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_PAUSED
-import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_RUNNING
 import kotlinx.android.synthetic.main.activity_stopwatch.*
+import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_RUNNING as STOPWATCH_IS_RUNNING
 
 
 class StopwatchActivity : AppCompatActivity() {
@@ -71,7 +71,7 @@ class StopwatchActivity : AppCompatActivity() {
         val playpauseBtn: ImageButton = view as ImageButton
 
         when (playpauseBtn.tag) {
-            IS_RUNNING.tagText  -> stopwatchStart(playpauseBtn)
+            STOPWATCH_IS_RUNNING.tagText  -> stopwatchStart(playpauseBtn)
             IS_PAUSED.tagText   -> stopwatchPause(playpauseBtn)
         }
     }
@@ -79,14 +79,14 @@ class StopwatchActivity : AppCompatActivity() {
     private fun stopwatchPause(playpauseBtn: ImageButton)
     {
         stopwatchService.startStopTimer(IS_PAUSED)
-        playpauseBtn.tag = IS_RUNNING.tagText
+        playpauseBtn.tag = STOPWATCH_IS_RUNNING.tagText
         playpauseBtn.setImageResource(R.drawable.blueicons_play)
     }
 
 
     fun stopwatchStart(playpauseBtn: ImageButton)
     {
-        stopwatchService.startStopTimer(IS_RUNNING)
+        stopwatchService.startStopTimer(STOPWATCH_IS_RUNNING)
         playpauseBtn.tag = IS_PAUSED.tagText
         playpauseBtn.setImageResource(R.drawable.blueicons_pause)
 
@@ -136,10 +136,7 @@ class StopwatchActivity : AppCompatActivity() {
             stopwatchService = binder.getService()
             isBound = true
 
-            setExText(
-                stopwatchService.currentExIdx,
-                "[-]"
-            )//FIRST Ex.
+            stopwatchStart(exercise_pause)
         }
         override fun onServiceDisconnected(arg0: ComponentName) {
             isBound = false
