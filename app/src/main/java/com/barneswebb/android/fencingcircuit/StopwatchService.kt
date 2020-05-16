@@ -76,34 +76,6 @@ class StopwatchService : Service() {
     }
 
 
-//----------------------------------------------------------------------------------//
-//  Thread to tell clients to update display                                        //
-//----------------------------------------------------------------------------------//
-    private var tickLooper: Looper? = null
-    private var tickHandler: ClockTickHandler? = null
-    private inner class ClockTickHandler(looper: Looper) : Handler(looper)//from https://developer.android.com/guide/components/services#ExtendingService
-    {
-        override fun handleMessage(msg: Message)
-        {
-            try
-            {
-                var lastTick = 0
-                while (stopwatchState == StopwatchState.IS_RUNNING)
-                {
-                    val elapsedSecs = elapsedTime()/1_000
-                    if (elapsedSecs >= lastTick) {
-                        processTick(elapsedSecs)
-                        lastTick = elapsedSecs.toInt()
-                    }
-                    broadcastElapsedTimeStr()
-                    Thread.sleep(50)
-                }
-            } catch (e: InterruptedException) {
-                Log.e(TAG, "Error during time_display update: ", e)
-                Thread.currentThread().interrupt()                // Restore interrupt status.
-            }
-        }
-    }
 
 //----------------------------------------------------------------------------------//
 //  Connection/binding stuff                                                                 //
@@ -136,7 +108,6 @@ class StopwatchService : Service() {
         IS_RUNNING("Play")
     }
 
-    var isFirstRun = true
 
     // Start and end times in milliseconds
     private var startTime: Long = 0  // Start and end times in milliseconds
@@ -145,22 +116,19 @@ class StopwatchService : Service() {
     // Is the service tracking time?
     var stopwatchState = StopwatchState.IS_PAUSED
 
+    var isFirstRun = true
+
 
     fun startStopTimer(targetState: StopwatchState) {
-        when (targetState) {
-            StopwatchState.IS_RUNNING ->    startTime = System.currentTimeMillis() - pauseTime
-            StopwatchState.IS_PAUSED ->     pauseTime = elapsedTime()
-        }
+        if (targetState == StopwatchState.IS_PAUSED)   pauseTime = elapsedTime()
+
+        startTime = System.currentTimeMillis() - pauseTime
         stopwatchState = targetState
+        isFirstRun = false
 
         tickHandler?.obtainMessage()?.also { msg ->
             tickHandler?.sendMessage(msg)
         }
-    }
-
-    fun resetTimer() {
-        pauseTime = 0
-        startTime = System.currentTimeMillis()
     }
 
 
@@ -171,11 +139,11 @@ class StopwatchService : Service() {
 
     fun elapsedTimeStr(): String   // idea stolen from https://coderwall.com/p/wkdefg/converting-milliseconds-to-hh-mm-ss-mmm
     {
-        var elapsedTime =   elapsedTime()
-        var milliseconds =  (elapsedTime%1000)/10
-        var seconds =       (elapsedTime/1000)%60
-        var minutes =       (elapsedTime/(1000*60))%60
-        var hours =         (elapsedTime/(1000*60*60))%24
+        val elapsedTime =   elapsedTime()
+        val milliseconds =  (elapsedTime%1000)/10
+        val seconds =       (elapsedTime/1000)%60
+        val minutes =       (elapsedTime/(1000*60))%60
+        val hours =         (elapsedTime/(1000*60*60))%24
 
         return "%02d:%02d:%02d.%02d".format(hours, minutes, seconds, milliseconds)//
     }
@@ -265,6 +233,34 @@ class StopwatchService : Service() {
         repCountList[currentExIdx] -=1
     }
 
+//----------------------------------------------------------------------------------//
+//  Thread to tell clients to update display                                        //
+//----------------------------------------------------------------------------------//
+    private var tickLooper: Looper? = null
+    private var tickHandler: ClockTickHandler? = null
+    private inner class ClockTickHandler(looper: Looper) : Handler(looper)//from https://developer.android.com/guide/components/services#ExtendingService
+    {
+        override fun handleMessage(msg: Message)
+        {
+            try
+            {
+                var lastTick = 0
+                while (stopwatchState == StopwatchState.IS_RUNNING)
+                {
+                    val elapsedSecs = elapsedTime()/1_000
+                    if (elapsedSecs >= lastTick) {
+                        processTick(elapsedSecs)
+                        lastTick = elapsedSecs.toInt()
+                    }
+                    broadcastElapsedTimeStr()
+                    Thread.sleep(50)
+                }
+            } catch (e: InterruptedException) {
+                Log.e(TAG, "Error during time_display update: ", e)
+                Thread.currentThread().interrupt()                // Restore interrupt status.
+            }
+        }
+    }
 
 //********************* FYI only: *********************//{{{
 

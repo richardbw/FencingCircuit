@@ -11,19 +11,20 @@ import android.content.*
 import android.graphics.Color
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import android.view.View
-import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_PAUSED
 import kotlinx.android.synthetic.main.activity_stopwatch.*
+import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_PAUSED as STOPWATCH_IS_PAUSED
 import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_RUNNING as STOPWATCH_IS_RUNNING
 
 
 class StopwatchActivity : AppCompatActivity() {
 
     companion object {
-        private val TAG: String = StopwatchActivity::class.java.simpleName
+        private val TAG = StopwatchActivity::class.java.simpleName
     }
 
 
@@ -33,6 +34,7 @@ class StopwatchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.v(TAG, "Creating service ========================================")
         setContentView(R.layout.activity_stopwatch)
     }
 
@@ -49,11 +51,8 @@ class StopwatchActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (isBound) {   //TODO This never gets run
-            stopwatchStart(exercise_pause)
-        }
         LocalBroadcastManager.getInstance(this).registerReceiver(uiUpdateMessageReceiver,       IntentFilter(StopwatchService.INTENT_NAME_PROC_TICK))
-        LocalBroadcastManager.getInstance(this).registerReceiver(timerDisplayMessageReceiver,   IntentFilter(StopwatchService.INTENT_NAME_UPDATE_TIMESTR));
+        LocalBroadcastManager.getInstance(this).registerReceiver(timerDisplayMessageReceiver,   IntentFilter(StopwatchService.INTENT_NAME_UPDATE_TIMESTR))
     }
 
     override fun onPause() {
@@ -63,43 +62,31 @@ class StopwatchActivity : AppCompatActivity() {
     }
 
 //----------------------------------------------------------------------------------//
-//  Button management                                                               //
+//  Button & Display management                                                               //
 //----------------------------------------------------------------------------------//
 
     fun btn_playpause(view: View)
     {
-        val playpauseBtn: ImageButton = view as ImageButton
+        when (exercise_pause.tag) {
+            STOPWATCH_IS_RUNNING.tagText  -> stopwatchService.startStopTimer(STOPWATCH_IS_RUNNING)
+            STOPWATCH_IS_PAUSED.tagText   -> stopwatchService.startStopTimer(STOPWATCH_IS_PAUSED)
+        }
+        setExercisePauseBtn()
+    }
 
-        when (playpauseBtn.tag) {
-            STOPWATCH_IS_RUNNING.tagText  -> stopwatchStart(playpauseBtn)
-            IS_PAUSED.tagText   -> stopwatchPause(playpauseBtn)
+    private fun setExercisePauseBtn() {
+        when (stopwatchService.stopwatchState)
+        {
+            STOPWATCH_IS_RUNNING    -> {
+                exercise_pause.tag = IS_PAUSED.tagText
+                exercise_pause.setImageResource(R.drawable.blueicons_pause)
+            }
+            STOPWATCH_IS_PAUSED    -> {
+                exercise_pause.tag = STOPWATCH_IS_RUNNING.tagText
+                exercise_pause.setImageResource(R.drawable.blueicons_play)
+            }
         }
     }
-
-    private fun stopwatchPause(playpauseBtn: ImageButton)
-    {
-        stopwatchService.startStopTimer(IS_PAUSED)
-        playpauseBtn.tag = STOPWATCH_IS_RUNNING.tagText
-        playpauseBtn.setImageResource(R.drawable.blueicons_play)
-    }
-
-
-    fun stopwatchStart(playpauseBtn: ImageButton)
-    {
-        stopwatchService.startStopTimer(STOPWATCH_IS_RUNNING)
-        playpauseBtn.tag = IS_PAUSED.tagText
-        playpauseBtn.setImageResource(R.drawable.blueicons_pause)
-
-        if (stopwatchService.isFirstRun) {   //This is pretty ugly TODO refactor
-            stopwatchService.repCountList[0] -= 1
-            setExText(
-                stopwatchService.currentExIdx,
-                "[-]-"
-            )//FIRST Ex.
-            stopwatchService.isFirstRun = false
-        }
-    }
-
 
     private fun setExText(exIdx: Int, exDisplayString: String)
     {
@@ -136,10 +123,24 @@ class StopwatchActivity : AppCompatActivity() {
             stopwatchService = binder.getService()
             isBound = true
 
-            stopwatchStart(exercise_pause)
+            setUIonConnect()
         }
         override fun onServiceDisconnected(arg0: ComponentName) {
             isBound = false
+        }
+    }
+
+    private fun setUIonConnect() {
+        if (stopwatchService.isFirstRun) {
+            stopwatchService.startStopTimer(STOPWATCH_IS_RUNNING) // start running automatically on start
+        } else
+        {
+            //stopwatch.text = stopwatchService.elapsedTimeStr() // TODO figure out how to get correct excercise string
+            setExText(
+                stopwatchService.currentExIdx,
+                "[-/-]" //TODO move this out of stopwatchService.processTick()
+            )
+            setExercisePauseBtn()
         }
     }
 
@@ -161,5 +162,12 @@ class StopwatchActivity : AppCompatActivity() {
         }
     }
 
+//********************* FYI only: *********************//{{{
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.v(TAG, "Destroying activity ========================================")
+    }
+//}}
 
 }
