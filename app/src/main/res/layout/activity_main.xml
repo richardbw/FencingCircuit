@@ -4,26 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFCCCCCC"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:id="@+id/button_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:background="#dddddd"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/recycler_view"
         >
 
-        <Button
-            android:id="@+id/excercise_play"
-            android:layout_width="0dp"
+        <ImageButton
+            android:id="@+id/exercise_play"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_width="0dp"
             android:onClick="play"
-            android:text="Start set ---->"
+            android:src="@drawable/blueicons_play"
+            android:tag="Play"
             />
-
-
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -32,8 +36,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/button_bar"
-        app:layout_constraintTop_toBottomOf="@id/button_bar"
-        />
+        app:layout_constraintTop_toBottomOf="@id/button_bar" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

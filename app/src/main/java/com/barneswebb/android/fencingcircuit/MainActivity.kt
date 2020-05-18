@@ -34,18 +34,18 @@ class MainActivity : AppCompatActivity() {
 
         initRecyclerView()
 
-        excerciseSettingAdapter.submitList(DataSource.getDataSet())
+        exerciseSettingAdapter.submitList(DataSource.getDataSet())
 
     }
 
-    lateinit var excerciseSettingAdapter    : ExcerciseSettingListRecylingAdapter
+    private lateinit var exerciseSettingAdapter    : ExcerciseSettingListRecylingAdapter
 
     private fun initRecyclerView()
     {
         recycler_view.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
-            excerciseSettingAdapter = ExcerciseSettingListRecylingAdapter()
-            adapter = excerciseSettingAdapter
+            exerciseSettingAdapter = ExcerciseSettingListRecylingAdapter()
+            adapter = exerciseSettingAdapter
             addItemDecoration(TopSpacingItemDecoration(30))
         }
     }

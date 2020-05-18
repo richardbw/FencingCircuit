@@ -25,10 +25,11 @@ class StopwatchService : Service() {
         private const val ONGOING_NOTIFICATION_ID: Int = 1234
         private const val TONE_STREAM = AudioManager.STREAM_ALARM
 
-        const val INTENT_NAME_UPDATE_TIMESTR= "stopwatchTimeStr"
-        const val INTENT_NAME_PROC_TICK     = "exerciseIdxToDisplay"
-        const val INTENTXTR_EXIDX_TO_DISPL  = "exIdx"
-        const val INTENTXTR_CUREX_T_DISPL   = "thisExProgressStr"
+        const val INTENT_NAME_UPDATE_TIMESTR        = "stopwatchTimeStr"
+        const val INTENT_NAME_UPDATE_COUNTDOWNSTR   = "countdownTimeStr"
+        const val INTENT_NAME_PROC_TICK             = "exerciseIdxToDisplay"
+        const val INTENTXTR_EXIDX_TO_DISPL          = "exIdx"
+        const val INTENTXTR_CUREX_T_DISPL           = "thisExProgressStr"
     }
 
 
@@ -148,13 +149,29 @@ class StopwatchService : Service() {
         return "%02d:%02d:%02d.%02d".format(hours, minutes, seconds, milliseconds)//
     }
 
+
+    private fun countdownTimeStr(): String
+    {
+        val elapsedSecs = elapsedTime()/1_000
+        val exTime  = DataSource.getDataSet()[currentExIdx].exTime_s
+        val restT   = DataSource.getDataSet()[currentExIdx].restTime_s
+
+        return if ( restStarted ) {
+            "${(completedExTime+exTime+restT) - elapsedSecs}"
+        } else {
+            "${(completedExTime+exTime) - elapsedSecs}"
+        }
+
+    }
+
+
     fun broadcastElapsedTimeStr()
     {
         val intent = Intent(INTENT_NAME_UPDATE_TIMESTR)
         intent.putExtra(INTENT_NAME_UPDATE_TIMESTR, elapsedTimeStr())
+        intent.putExtra(INTENT_NAME_UPDATE_COUNTDOWNSTR, countdownTimeStr())
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
-
 
 //----------------------------------------------------------------------------------//
 //  Exercise orchestration                                                          //
@@ -162,7 +179,7 @@ class StopwatchService : Service() {
 
     var restStarted: Boolean = false
     var currentExIdx = 0
-    private var completedExTime: Long = 0
+    private var completedExTime: Long = 0    //total time of completed full exercise blocks
 
     var repCountList: MutableList<Int> = DataSource.getDataSet().stream().map { e -> e.noReps }.collect( Collectors.toList())
 

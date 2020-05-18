@@ -15,7 +15,8 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_PAUSED
+import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.INTENT_NAME_UPDATE_TIMESTR
+import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.INTENT_NAME_UPDATE_COUNTDOWNSTR
 import kotlinx.android.synthetic.main.activity_stopwatch.*
 import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_PAUSED as STOPWATCH_IS_PAUSED
 import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_RUNNING as STOPWATCH_IS_RUNNING
@@ -52,7 +53,9 @@ class StopwatchActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         LocalBroadcastManager.getInstance(this).registerReceiver(uiUpdateMessageReceiver,       IntentFilter(StopwatchService.INTENT_NAME_PROC_TICK))
-        LocalBroadcastManager.getInstance(this).registerReceiver(timerDisplayMessageReceiver,   IntentFilter(StopwatchService.INTENT_NAME_UPDATE_TIMESTR))
+        LocalBroadcastManager.getInstance(this).registerReceiver(timerDisplayMessageReceiver,   IntentFilter(
+            INTENT_NAME_UPDATE_TIMESTR
+        ))
     }
 
     override fun onPause() {
@@ -78,7 +81,7 @@ class StopwatchActivity : AppCompatActivity() {
         when (stopwatchService.stopwatchState)
         {
             STOPWATCH_IS_RUNNING    -> {
-                exercise_pause.tag = IS_PAUSED.tagText
+                exercise_pause.tag = STOPWATCH_IS_PAUSED.tagText
                 exercise_pause.setImageResource(R.drawable.blueicons_pause)
             }
             STOPWATCH_IS_PAUSED    -> {
@@ -158,7 +161,8 @@ class StopwatchActivity : AppCompatActivity() {
     private val timerDisplayMessageReceiver: BroadcastReceiver = object : BroadcastReceiver()
     {
         override fun onReceive(context: Context, intent: Intent) {
-            stopwatch.text = intent.getStringExtra(StopwatchService.INTENT_NAME_UPDATE_TIMESTR)
+            stopwatch.text          = intent.getStringExtra(INTENT_NAME_UPDATE_TIMESTR)
+            countdown_timer.text    = intent.getStringExtra(INTENT_NAME_UPDATE_COUNTDOWNSTR)
         }
     }
 

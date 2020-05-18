@@ -47,8 +47,8 @@ class ExcerciseSettingListRecylingAdapter : Adapter<RecyclerView.ViewHolder>() {
         private val  excercise_reps      : EditText  = itemView.noReps
 
         fun bind(exerciseSetting: ExcerciseSetting) {
-            excercise_title .setText(exerciseSetting.exerciseType.title)
-            excercise_desc  .setText(exerciseSetting.exerciseType.desc)
+            excercise_title.text   = exerciseSetting.exerciseType.title
+            excercise_desc.text    = exerciseSetting.exerciseType.desc
             excercise_time  .setText(exerciseSetting.exTime_s.toString())
             excercise_rest  .setText(exerciseSetting.restTime_s.toString())
             excercise_reps  .setText(exerciseSetting.noReps.toString())
