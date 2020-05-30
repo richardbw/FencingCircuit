@@ -3,9 +3,9 @@ package com.barneswebb.android.fencingcircuit.models
 import java.util.*
 
 
-data class ExcerciseRecord(
+data class ExerciseRecord(
 
-   var excerciseSetting: ExcerciseSetting,
+   var exerciseSetting: ExerciseSetting,
    var date:         Date,
    var notes:        String
 

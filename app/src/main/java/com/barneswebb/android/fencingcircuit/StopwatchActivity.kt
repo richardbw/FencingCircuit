@@ -68,7 +68,7 @@ class StopwatchActivity : AppCompatActivity() {
 //  Button & Display management                                                               //
 //----------------------------------------------------------------------------------//
 
-    fun btn_playpause(view: View)
+    fun btnPlaypause(view: View)
     {
         when (exercise_pause.tag) {
             STOPWATCH_IS_RUNNING.tagText  -> stopwatchService.startStopTimer(STOPWATCH_IS_RUNNING)
@@ -138,7 +138,7 @@ class StopwatchActivity : AppCompatActivity() {
             stopwatchService.startStopTimer(STOPWATCH_IS_RUNNING) // start running automatically on start
         } else
         {
-            //stopwatch.text = stopwatchService.elapsedTimeStr() // TODO figure out how to get correct excercise string
+            //stopwatch.text = stopwatchService.elapsedTimeStr() // TODO figure out how to get correct exercise string
             setExText(
                 stopwatchService.currentExIdx,
                 "[-/-]" //TODO move this out of stopwatchService.processTick()

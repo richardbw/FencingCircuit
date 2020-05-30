@@ -38,13 +38,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private lateinit var exerciseSettingAdapter    : ExcerciseSettingListRecylingAdapter
+    private lateinit var exerciseSettingAdapter    : ExerciseSettingListRecyclingAdapter
 
     private fun initRecyclerView()
     {
         recycler_view.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
-            exerciseSettingAdapter = ExcerciseSettingListRecylingAdapter()
+            exerciseSettingAdapter = ExerciseSettingListRecyclingAdapter()
             adapter = exerciseSettingAdapter
             addItemDecoration(TopSpacingItemDecoration(30))
         }

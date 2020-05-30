@@ -1,8 +1,8 @@
 package com.barneswebb.android.fencingcircuit.models
 
-data class ExcerciseSetting(
+data class ExerciseSetting(
 
-    var exerciseType:   ExcerciseType,
+    var exerciseType:   ExerciseType,
     var exTime_s:       Int,
     var restTime_s:     Int,
     var noReps:         Int

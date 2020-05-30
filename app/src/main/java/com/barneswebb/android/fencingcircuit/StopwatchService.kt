@@ -138,7 +138,7 @@ class StopwatchService : Service() {
     }
 
 
-    fun elapsedTimeStr(): String   // idea stolen from https://coderwall.com/p/wkdefg/converting-milliseconds-to-hh-mm-ss-mmm
+    private fun elapsedTimeStr(): String   // idea stolen from https://coderwall.com/p/wkdefg/converting-milliseconds-to-hh-mm-ss-mmm
     {
         val elapsedTime =   elapsedTime()
         val milliseconds =  (elapsedTime%1000)/10
