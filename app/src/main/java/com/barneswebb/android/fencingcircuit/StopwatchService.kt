@@ -28,8 +28,8 @@ class StopwatchService : Service() {
         const val INTENT_NAME_UPDATE_TIMESTR        = "stopwatchTimeStr"
         const val INTENT_NAME_UPDATE_COUNTDOWNSTR   = "countdownTimeStr"
         const val INTENT_NAME_PROC_TICK             = "exerciseIdxToDisplay"
+        const val INTENT_NAME_CUREX_T_DISPL         = "thisExProgressStr"
         const val INTENTXTR_EXIDX_TO_DISPL          = "exIdx"
-        const val INTENTXTR_CUREX_T_DISPL           = "thisExProgressStr"
     }
 
 
@@ -125,7 +125,10 @@ class StopwatchService : Service() {
 
         startTime = System.currentTimeMillis() - pauseTime
         stopwatchState = targetState
-        isFirstRun = false
+        if (isFirstRun) {
+            isFirstRun = false
+            repCountList[currentExIdx] -=1
+        }
 
         tickHandler?.obtainMessage()?.also { msg ->
             tickHandler?.sendMessage(msg)
@@ -167,9 +170,16 @@ class StopwatchService : Service() {
 
     fun broadcastElapsedTimeStr()
     {
+        //maybe there's a better way... (dupl. code..)
+        val exTime  = DataSource.getDataSet()[currentExIdx].exTime_s
+        val restT   = DataSource.getDataSet()[currentExIdx].restTime_s
+        val currExT = ((elapsedTime()/1_000)-completedExTime)
+
         val intent = Intent(INTENT_NAME_UPDATE_TIMESTR)
+
         intent.putExtra(INTENT_NAME_UPDATE_TIMESTR, elapsedTimeStr())
         intent.putExtra(INTENT_NAME_UPDATE_COUNTDOWNSTR, countdownTimeStr())
+        intent.putExtra(INTENT_NAME_CUREX_T_DISPL, "$currExT/[$exTime+$restT]")
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
@@ -201,19 +211,11 @@ class StopwatchService : Service() {
             }
         }
 
-        val intent = Intent(INTENT_NAME_PROC_TICK)
-        if (restStarted) {
-            intent.putExtra(INTENTXTR_EXIDX_TO_DISPL, getNextExIdx()) //if resting, override current & display next ex.
-        } else {
-            intent.putExtra(INTENTXTR_EXIDX_TO_DISPL, currentExIdx)
-        }
-        intent.putExtra(INTENTXTR_CUREX_T_DISPL, "$currExT/[$exTime+$restT]")
-
         // https://stackoverflow.com/questions/30629071/sending-a-simple-message-from-service-to-activity
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(INTENT_NAME_PROC_TICK))
     }
 
-    private fun getNextExIdx(): Int {
+    fun getNextExIdx(): Int {
         if (currentExIdx < (DataSource.list.size-1))
             return currentExIdx + 1
         else

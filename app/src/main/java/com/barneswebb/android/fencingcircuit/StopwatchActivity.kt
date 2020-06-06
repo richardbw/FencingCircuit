@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.INTENT_NAME_CUREX_T_DISPL
 import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.INTENT_NAME_UPDATE_TIMESTR
 import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.INTENT_NAME_UPDATE_COUNTDOWNSTR
 import kotlinx.android.synthetic.main.activity_stopwatch.*
@@ -91,24 +92,32 @@ class StopwatchActivity : AppCompatActivity() {
         }
     }
 
-    private fun setExText(exIdx: Int, exDisplayString: String)
+    private fun setExText()
     {
-        this_exercise_time.text = exDisplayString
+        if (! isBound) return  /// don't update if not connected to stopwatch service
 
-        exercise_name.text = "${exIdx+1}/${DataSource.getDataSet().size}) ${DataSource.getDataSet()[exIdx].exerciseType.title}"
-        exercise_desc.text = DataSource.getDataSet()[exIdx].exerciseType.desc
-        remaining_reps.text = "Reps remaining: ${stopwatchService.repCountList[exIdx].toString()}"
+
+        var exIdx = -1
 
         if (stopwatchService.restStarted) {
+            exIdx = stopwatchService.getNextExIdx()
+
             exercise_rest.visibility = View.VISIBLE
             next_exercise.visibility = View.VISIBLE
             exercise_rest.setBackgroundColor(Color.YELLOW)
-        } else {
+        }
+        else {
+            exIdx = stopwatchService.currentExIdx
+
             exercise_rest.visibility = View.INVISIBLE
             next_exercise.visibility = View.INVISIBLE
             exercise_rest.setBackgroundColor(Color.LTGRAY)
             exercise_pause.bringToFront()
         }
+
+        exercise_name.text = "${exIdx+1}/${DataSource.getDataSet().size}) ${DataSource.getDataSet()[exIdx].exerciseType.title}"
+        exercise_desc.text = DataSource.getDataSet()[exIdx].exerciseType.desc
+        remaining_reps.text = "Reps remaining: ${stopwatchService.repCountList[exIdx].toString()}"
     }
 
 //----------------------------------------------------------------------------------//
@@ -126,43 +135,33 @@ class StopwatchActivity : AppCompatActivity() {
             stopwatchService = binder.getService()
             isBound = true
 
-            setUIonConnect()
+            setExText()
+            setExercisePauseBtn()
         }
+
         override fun onServiceDisconnected(arg0: ComponentName) {
             isBound = false
         }
     }
 
-    private fun setUIonConnect() {
-        if (stopwatchService.isFirstRun) {
-            stopwatchService.startStopTimer(STOPWATCH_IS_RUNNING) // start running automatically on start
-        } else
-        {
-            //stopwatch.text = stopwatchService.elapsedTimeStr() // TODO figure out how to get correct exercise string
-            setExText(
-                stopwatchService.currentExIdx,
-                "[-/-]" //TODO move this out of stopwatchService.processTick()
-            )
-            setExercisePauseBtn()
-        }
-    }
 
 
     // https://stackoverflow.com/questions/30629071/sending-a-simple-message-from-service-to-activity
+    //exercise related updates:
     private val uiUpdateMessageReceiver: BroadcastReceiver = object : BroadcastReceiver()
     {
         override fun onReceive(context: Context, intent: Intent) {
-            setExText(
-                intent.getIntExtra(StopwatchService.INTENTXTR_EXIDX_TO_DISPL, -1),
-                intent.getStringExtra(StopwatchService.INTENTXTR_CUREX_T_DISPL)
-            )
+            setExText()
         }
     }
+
+    //time related display updates:
     private val timerDisplayMessageReceiver: BroadcastReceiver = object : BroadcastReceiver()
     {
         override fun onReceive(context: Context, intent: Intent) {
             stopwatch.text          = intent.getStringExtra(INTENT_NAME_UPDATE_TIMESTR)
             countdown_timer.text    = intent.getStringExtra(INTENT_NAME_UPDATE_COUNTDOWNSTR)
+            this_exercise_time.text = intent.getStringExtra(INTENT_NAME_CUREX_T_DISPL)
         }
     }
 

@@ -34,7 +34,7 @@
             android:layout_weight="1"
             android:layout_width="0dp"
             android:onClick="btnPlaypause"
-            android:src="@drawable/blueicons_pause"
+            android:src="@drawable/blueicons_play"
             android:tag="Pause"
             />
 
