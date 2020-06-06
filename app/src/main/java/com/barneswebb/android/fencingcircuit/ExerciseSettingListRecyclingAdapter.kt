@@ -1,5 +1,6 @@
 package com.barneswebb.android.fencingcircuit
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,10 +8,15 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.barneswebb.android.fencingcircuit.models.ExerciseSetting
 import kotlinx.android.synthetic.main.layout_excercisesetting_list_item.view.*
 
-class ExerciseSettingListRecyclingAdapter : Adapter<RecyclerView.ViewHolder>() {
+
+class ExerciseSettingListRecyclingAdapter : Adapter<ViewHolder>() {
+    companion object {
+        private val TAG: String = ExerciseSettingListRecyclingAdapter::class.java.simpleName
+    }
 
     private var items: List<ExerciseSetting> = ArrayList()
 
@@ -18,17 +24,27 @@ class ExerciseSettingListRecyclingAdapter : Adapter<RecyclerView.ViewHolder>() {
         items = exerciseSettingList
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ExerciseSettingViewHolder(
             LayoutInflater.from(parent.context).inflate(R.layout.layout_excercisesetting_list_item, parent, false)
         )
+    }
+
+
+    fun updateData(viewModels: ArrayList<ExerciseSetting>) {
+        notifyDataSetChanged()
+    }
+
+    override fun onViewRecycled(holder: ViewHolder) {
+        //items[holder.adapterPosition] = holder.  .mEditText.getText().toString()
+        Log.d(TAG, "${holder}")
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         when (holder) {
             is ExerciseSettingViewHolder -> {
                 holder.bind(items[position])
@@ -38,7 +54,7 @@ class ExerciseSettingListRecyclingAdapter : Adapter<RecyclerView.ViewHolder>() {
 
     class ExerciseSettingViewHolder constructor(
         itemView: View
-    ):RecyclerView.ViewHolder(itemView) {
+    ):ViewHolder(itemView) {
 
         private val  exerciseTitle     : TextView  = itemView.excercise_title
         private val  exerciseDesc      : TextView  = itemView.exercise_desc
