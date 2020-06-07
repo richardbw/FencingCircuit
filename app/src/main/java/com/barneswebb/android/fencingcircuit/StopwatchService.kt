@@ -29,7 +29,8 @@ class StopwatchService : Service() {
         const val INTENT_NAME_UPDATE_COUNTDOWNSTR   = "countdownTimeStr"
         const val INTENT_NAME_PROC_TICK             = "exerciseIdxToDisplay"
         const val INTENT_NAME_CUREX_T_DISPL         = "thisExProgressStr"
-        const val INTENTXTR_EXIDX_TO_DISPL          = "exIdx"
+
+        const val NO_MORE_EXERCISES                 = -1
     }
 
 
@@ -164,12 +165,13 @@ class StopwatchService : Service() {
         } else {
             "${(completedExTime+exTime) - elapsedSecs}"
         }
-
     }
 
 
     fun broadcastElapsedTimeStr()
     {
+        if ( currentExIdx == NO_MORE_EXERCISES ) return
+
         //maybe there's a better way... (dupl. code..)
         val exTime  = DataSource.getDataSet()[currentExIdx].exTime_s
         val restT   = DataSource.getDataSet()[currentExIdx].restTime_s
@@ -216,10 +218,13 @@ class StopwatchService : Service() {
     }
 
     fun getNextExIdx(): Int {
-        if (currentExIdx < (DataSource.list.size-1))
-            return currentExIdx + 1
-        else
-            return 0
+        val noExes = DataSource.list.size
+
+        for (x in 0..noExes) {
+            val nextIdx = if (currentExIdx < (noExes-1)) (currentExIdx + 1) else 0
+            if (repCountList[nextIdx] > 0)  return nextIdx
+        }
+        return NO_MORE_EXERCISES
     }
 
 
@@ -249,7 +254,10 @@ class StopwatchService : Service() {
         completedExTime = elapsedSecs  //set completed exercise time
         currentExIdx = getNextExIdx()
 
-        repCountList[currentExIdx] -=1
+        if (currentExIdx == NO_MORE_EXERCISES)
+            stopwatchState = StopwatchState.IS_PAUSED
+        else
+            repCountList[currentExIdx] -=1
     }
 
 //----------------------------------------------------------------------------------//

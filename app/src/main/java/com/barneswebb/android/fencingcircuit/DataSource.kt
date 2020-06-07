@@ -34,8 +34,8 @@ class DataSource{
                         "Steps forward and back",
                         "Steps forward and back with some variety in the number, size and type of step and the frequency of direction changes"
                     ),
-                    SECONDS_05,
-                    SECONDS_05,
+                    MINUTES_1,
+                    SECONDS_30,
                     REPS_2
                 )
             )
@@ -45,14 +45,14 @@ class DataSource{
                         "Steps between 2 points",
                         "Steps forward and back between 2 points, performed at speed and correctly."
                     ),
-                    SECONDS_05,
-                    SECONDS_05,
+                    MINUTES_1,
+                    SECONDS_30,
                     REPS_2
                 )
             )
-            /*list.add(
-                ExcerciseSetting(
-                    ExcerciseType(
+            list.add(
+                ExerciseSetting(
+                    ExerciseType(
                         "Lunge with partial recovery",
                         "From the lunge position, recover without withdrawing the front foot and return to the lunge position"
                     ),
@@ -62,8 +62,8 @@ class DataSource{
                 )
             )
             list.add(
-                ExcerciseSetting(
-                    ExcerciseType(
+                ExerciseSetting(
+                    ExerciseType(
                         "Steps with lunges",
                         "Steps forward and back combined with lunges"
                     ),
@@ -73,8 +73,8 @@ class DataSource{
                 )
             )
             list.add(
-                ExcerciseSetting(
-                    ExcerciseType(
+                ExerciseSetting(
+                    ExerciseType(
                         "Lunge with straightening front leg",
                         "From the lunge position, completely straighten the front leg without bending the rear leg, lifting oneself up and return to the lunge position"
                     ),
@@ -84,8 +84,8 @@ class DataSource{
                 )
             )
             list.add(
-                ExcerciseSetting(
-                    ExcerciseType(
+                ExerciseSetting(
+                    ExerciseType(
                         "Step lunge, recover, step back",
                         "Step lunge, recover, step back "
                     ),
@@ -95,8 +95,8 @@ class DataSource{
                 )
             )
             list.add(
-                ExcerciseSetting(
-                    ExcerciseType(
+                ExerciseSetting(
+                    ExerciseType(
                         "Steps and squat jumps",
                         "3 steps followed by 1 squat jump. from the on guard stance, jump down and back up"
                     ),
@@ -106,8 +106,8 @@ class DataSource{
                 )
             )
             list.add(
-                ExcerciseSetting(
-                    ExcerciseType(
+                ExerciseSetting(
+                    ExerciseType(
                         "Squat jumps",
                         "From the on guard stance, jump down and back up"
                     ),
@@ -115,7 +115,7 @@ class DataSource{
                     SECONDS_30,
                     REPS_2
                 )
-            )*/
+            )
             return list
         }
     }

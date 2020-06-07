@@ -18,6 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.INTENT_NAME_CUREX_T_DISPL
 import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.INTENT_NAME_UPDATE_TIMESTR
 import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.INTENT_NAME_UPDATE_COUNTDOWNSTR
+import com.barneswebb.android.fencingcircuit.StopwatchService.Companion.NO_MORE_EXERCISES
 import kotlinx.android.synthetic.main.activity_stopwatch.*
 import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_PAUSED as STOPWATCH_IS_PAUSED
 import com.barneswebb.android.fencingcircuit.StopwatchService.StopwatchState.IS_RUNNING as STOPWATCH_IS_RUNNING
@@ -97,27 +98,37 @@ class StopwatchActivity : AppCompatActivity() {
         if (! isBound) return  /// don't update if not connected to stopwatch service
 
 
-        var exIdx = -1
+        var exIdx = NO_MORE_EXERCISES
 
         if (stopwatchService.restStarted) {
             exIdx = stopwatchService.getNextExIdx()
 
+            if (exIdx != NO_MORE_EXERCISES) next_exercise.visibility = View.VISIBLE
             exercise_rest.visibility = View.VISIBLE
-            next_exercise.visibility = View.VISIBLE
             exercise_rest.setBackgroundColor(Color.YELLOW)
         }
         else {
             exIdx = stopwatchService.currentExIdx
 
-            exercise_rest.visibility = View.INVISIBLE
             next_exercise.visibility = View.INVISIBLE
+            exercise_rest.visibility = View.INVISIBLE
             exercise_rest.setBackgroundColor(Color.LTGRAY)
             exercise_pause.bringToFront()
         }
 
-        exercise_name.text = "${exIdx+1}/${DataSource.getDataSet().size}) ${DataSource.getDataSet()[exIdx].exerciseType.title}"
-        exercise_desc.text = DataSource.getDataSet()[exIdx].exerciseType.desc
-        remaining_reps.text = "Reps remaining: ${stopwatchService.repCountList[exIdx].toString()}"
+        if (exIdx == NO_MORE_EXERCISES)
+        {
+            countdown_timer.text = "Workout Complete!"
+            exercise_name.text   = ""
+            exercise_desc.text   = ""
+            remaining_reps.text  = ""
+            stopwatch.text       = ""
+        } else
+        {
+            exercise_name.text   = "${exIdx + 1} of ${DataSource.getDataSet().size}) ${DataSource.getDataSet()[exIdx].exerciseType.title}"
+            exercise_desc.text   = DataSource.getDataSet()[exIdx].exerciseType.desc
+            remaining_reps.text  = "Reps remaining: ${stopwatchService.repCountList[exIdx].toString()}"
+        }
     }
 
 //----------------------------------------------------------------------------------//
